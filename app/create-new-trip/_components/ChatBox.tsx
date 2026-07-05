@@ -9,7 +9,7 @@ import TripDurationUi from './TripDurationUi'
 import FinalTripUi from './FinalTripUi'
 import { api } from '@/convex/_generated/api'
 import { useMutation } from 'convex/react'
-import { useUserDetail } from '@/app/provider'
+import { useTripDetail, useUserDetail } from '@/app/provider'
 import { v4 as uuidv4 } from 'uuid'
 
 type Message = {
@@ -62,6 +62,8 @@ type Itinerary={
   best_time_to_visit_day?: string,
 }
 
+export type { Itinerary };
+
 function ChatBox({ onTripGenerated }: { onTripGenerated?: (trip: TripInfo) => void }) {
   const [messages, setMessages] = useState<Message[]>([])
   const [userInput, setUserInput] = useState<string>('')
@@ -70,7 +72,8 @@ function ChatBox({ onTripGenerated }: { onTripGenerated?: (trip: TripInfo) => vo
   const [tripDetail,setTripDetail]=useState<TripInfo>()
   const [finalRequestTriggered, setFinalRequestTriggered] = useState(false)
   const finalRequestTriggeredRef = useRef(false)
-  
+  const tripContext = useTripDetail();
+  const setTripDetailInfo = tripContext?.setTripDetailInfo;
   // The generated `api` may not include `tripDetail` in some build contexts;
   // cast to any to avoid TS error when the property is missing.
   const SaveTripDetail = useMutation((api as any).tripDetail?.CreateTripDetail)
@@ -115,6 +118,9 @@ function ChatBox({ onTripGenerated }: { onTripGenerated?: (trip: TripInfo) => vo
       ])
       if(shouldUseFinal){
         const plan = result?.data?.trip_plan
+        if (setTripDetailInfo) {
+          setTripDetailInfo(plan)
+        }
         if (plan) {
           setTripDetail(plan)
           onTripGenerated?.(plan)
