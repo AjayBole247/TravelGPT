@@ -4,7 +4,8 @@ import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import path from 'path'
 import Link from 'next/link'
-import { SignInButton, useUser } from '@clerk/nextjs'
+import { SignInButton, UserButton, useUser } from '@clerk/nextjs'
+import { usePathname } from 'next/navigation'
 
 const menuOptions=[
     {
@@ -24,6 +25,8 @@ const menuOptions=[
 
 const Header = () => {
     const {user}=useUser();
+    const path=usePathname();
+
   return (
     <div className='flex justify-between items-center p-5'>
      {/* {Logo} */}
@@ -46,14 +49,23 @@ const Header = () => {
         </div>
 
      {/* {Get Started Button} */}
+     <div className='flex gap-5 items-center'>
+
      {!user ? <SignInButton mode='modal'>
      <Button>Get Started</Button>
 
      </SignInButton>:
-     <Link href={'/create-new-trip'}>
+     path=='/create-new-trip' ?
+     <Link href={'/my-trips'}>
+     <Button>My Trips</Button>
+     </Link>
+
+     :<Link href={'/create-new-trip'}>
      <Button>Create New Trip</Button>
      </Link>
     }
+    <UserButton/>
+    </div>
     </div>
   )
 }
